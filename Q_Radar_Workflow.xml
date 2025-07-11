@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow name="Fetch Radware CWAF, Web DDoS, CDDos Events (API Key)">
+
+  <!-- ==== Parameters for Dynamic Control ==== -->
+  <Parameter name="api_key" label="API Key" required="true" />
+  <Parameter name="context_id" label="Context ID (App Protection)" required="false" />
+  <Parameter name="infra_context_id" label="Infrastructure Context ID (CDDos)" required="false" />
+  <Parameter name="application_id" label="Application ID (optional)" required="false" />
+  <Parameter name="fetch_minutes" label="Fetch Minutes" required="false" default="5" />
+  <Parameter name="fetch_hours" label="Fetch Hours" required="false" default="0" />
+  <Parameter name="fetch_days" label="Fetch Days" required="false" default="0" />
+  <Parameter name="page" label="Page Number" required="false" default="0" />
+  <Parameter name="size" label="Page Size" required="false" default="100" />
+
+  <!-- === WAF EVENTS === -->
+  <If test="${/context_id} != ''">
+    <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/APPWALL_REPORTS"
+                  method="POST" savePath="/get_waf_events" retryCount="2">
+      <RequestHeader name="X-API-KEY" value="${/api_key}" />
+      <RequestHeader name="Context" value="${/context_id}" />
+      <RequestHeader name="Content-Type" value="application/json" />
+      <RawRequestBody>
+        {
+          "criteria": [
+            {
+              "type": "timeFilter",
+              "field": "receivedTimeStamp",
+              "includeLower": true,
+              "includeUpper": true,
+              "lower": ${time() - (1000 * 60 * (int(/fetch_minutes) + 60 * int(/fetch_hours) + 1440 * int(/fetch_days)))},
+              "upper": ${time()}
+            }
+            <If test="${/application_id} != ''">,
+            {
+              "type": "stringFilter",
+              "field": "applicationId",
+              "values": [ "${/application_id}" ],
+              "operation": "IN"
+            }
+            </If>
+          ],
+          "pagination": {
+            "page": ${/page},
+            "size": ${/size}
+          },
+          "order": [
+            {
+              "type": "Order",
+              "order": "DESC",
+              "field": "receivedTimeStamp",
+              "sortingType": "STRING"
+            }
+          ]
+        }
+      </RawRequestBody>
+    </CallEndpoint>
+  </If>
+<If test="not(/get_waf_events/response/data)">
+   <Log level="ERROR">[ERROR] WAF: No events returned or request failed.</Log>
+</If>
+  <!-- === Web DDoS EVENTS === -->
+  <If test="${/context_id} != ''">
+    <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/L7_DDOS_ATTACK_REPORT"
+                  method="POST" savePath="/get_web_ddos_events" retryCount="2">
+      <RequestHeader name="X-API-KEY" value="${/api_key}" />
+      <RequestHeader name="Context" value="${/context_id}" />
+      <RequestHeader name="Content-Type" value="application/json" />
+      <RawRequestBody>
+        {
+          "criteria": [
+            {
+              "type": "timeFilter",
+              "field": "receivedTimeStamp",
+              "includeLower": true,
+              "includeUpper": true,
+              "lower": ${time() - (1000 * 60 * (int(/fetch_minutes) + 60 * int(/fetch_hours) + 1440 * int(/fetch_days)))},
+              "upper": ${time()}
+            }
+            <If test="${/application_id} != ''">,
+            {
+              "type": "stringFilter",
+              "field": "applicationId",
+              "values": [ "${/application_id}" ],
+              "operation": "IN"
+            }
+            </If>
+          ],
+          "pagination": {
+            "page": ${/page},
+            "size": ${/size}
+          },
+          "order": [
+            {
+              "type": "Order",
+              "order": "DESC",
+              "field": "receivedTimeStamp",
+              "sortingType": "STRING"
+            }
+          ]
+        }
+      </RawRequestBody>
+    </CallEndpoint>
+  </If>
+<If test="not(/get_web_ddos_events/response/data)">
+  <Log level="ERROR">[ERROR] Web DDoS: No events returned or request failed.</Log>
+</If>
+
+  <!-- === CDDos EVENTS === -->
+  <If test="${/infra_context_id} != ''">
+    <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/L4_DDOS_ATTACK_REPORT"
+                  method="POST" savePath="/get_cddos_events" retryCount="2">
+      <RequestHeader name="X-API-KEY" value="${/api_key}" />
+      <RequestHeader name="Context" value="${/infra_context_id}" />
+      <RequestHeader name="Content-Type" value="application/json" />
+      <RawRequestBody>
+        {
+          "criteria": [
+            {
+              "type": "timeFilter",
+              "field": "receivedTimeStamp",
+              "includeLower": true,
+              "includeUpper": true,
+              "lower": ${time() - (1000 * 60 * (int(/fetch_minutes) + 60 * int(/fetch_hours) + 1440 * int(/fetch_days)))},
+              "upper": ${time()}
+            }
+          ],
+          "pagination": {
+            "page": ${/page},
+            "size": ${/size}
+          },
+          "order": [
+            {
+              "type": "Order",
+              "order": "DESC",
+              "field": "receivedTimeStamp",
+              "sortingType": "STRING"
+            }
+          ]
+        }
+      </RawRequestBody>
+    </CallEndpoint>
+  </If>
+<If test="not(/get_cddos_events/response/data)">
+  <Log level="ERROR">[ERROR] CDDos: No events returned or request failed.</Log>
+</If>
+
+  <!-- === Logging Section === -->
+  <Log level="INFO">[INFO] Time range: ${/fetch_days}d ${/fetch_hours}h ${/fetch_minutes}m</Log>
+  <If test="${/application_id} != ''">
+    <Log level="INFO">[INFO] Application ID filter: ${/application_id}</Log>
+  </If>
+  <If test="/get_waf_events/response/data">
+    <Log level="INFO">[INFO] WAF events received: ${count(/get_waf_events/response/data)}</Log>
+  </If>
+  <If test="/get_web_ddos_events/response/data">
+    <Log level="INFO">[INFO] Web DDoS events received: ${count(/get_web_ddos_events/response/data)}</Log>
+  </If>
+  <If test="/get_cddos_events/response/data">
+    <Log level="INFO">[INFO] CDDos events received: ${count(/get_cddos_events/response/data)}</Log>
+  </If>
+  <!-- 
+    ⚠️ Disclaimer:
+    This workflow was developed for educational and development purposes only.
+    The author makes no guarantees regarding its correctness, compatibility, or performance in your production environment.
+    Use at your own risk. You are solely responsible for validating, testing, and securing this integration.
+    The author assumes no liability for any data loss, operational impact, or security issues resulting from the use of this workflow.
+  -->
+</Workflow>
