@@ -1,0 +1,29 @@
+<parameters>
+    <!-- 
+    Workflow Parameter Values (for QRadar) 
+    These parameters correspond to the <Parameter> names defined in the main Workflow XML.
+    QRadar will substitute these values into the workflow logic during execution.
+    -->
+    
+    <!-- Radware API Key (Used in X-API-KEY Header) -->
+    <parameter name="api_key">YOUR_RADWARE_API_KEY_HERE</parameter>
+    
+    <!-- Context ID for AppWall (WAF) and Web (L7) DDoS Events (Used in Context Header) -->
+    <parameter name="context_id">YOUR_APP_PROTECTION_ID</parameter>
+    
+    <!-- Infrastructure Context ID for CDDos (L4) DDoS Events (Used in Context Header) -->
+    <parameter name="infra_context_id">YOUR_INFRA_PROTECTION_ID</parameter>
+    
+    <!-- Time Range Configuration: Time is calculated as a sum of these three fields (in minutes) -->
+    <parameter name="fetch_minutes">5</parameter>
+    <parameter name="fetch_hours">0</parameter>
+    <parameter name="fetch_days">0</parameter>
+    
+    <!-- Application ID for filtering (optional) -->
+    <parameter name="application_id"></parameter>
+
+    <!-- Pagination Settings -->
+    <parameter name="page">0</parameter>
+    <parameter name="size">100</parameter>
+    
+</parameters>
