@@ -21,8 +21,7 @@
   <Actions>
     <!-- === WAF EVENTS (L7) === -->
     <!-- Calls the AppWall report if the App Protection Context ID is provided -->
-    <If>
-      <Condition>${/context_id} != ''</Condition>
+    <If condition="${/context_id} != ''">
       <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/APPWALL_REPORTS"
                     method="POST" savePath="/get_waf_events" retryCount="2">
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
@@ -40,8 +39,7 @@
                 "lower": ${time() - (1000 * 60 * (int(/fetch_minutes) + 60 * int(/fetch_hours) + 1440 * int(/fetch_days)))},
                 "upper": ${time()}
               }
-              <If>
-                <Condition>${/application_id} != ''</Condition>,
+              <If condition="${/application_id} != ''">,
                 {
                   "type": "stringFilter",
                   "field": "applicationId",
@@ -66,14 +64,12 @@
         </RawRequestBody>
       </CallEndpoint>
     </If>
-    <If>
-      <Condition>not(/get_waf_events/response/data)</Condition>
+    <If condition="not(/get_waf_events/response/data)">
       <Log level="ERROR">[ERROR] WAF: No events returned or request failed.</Log>
     </If>
     <!-- === Web DDoS EVENTS (L7) === -->
     <!-- Calls the L7 DDoS report if the App Protection Context ID is provided -->
-    <If>
-      <Condition>${/context_id} != ''</Condition>
+    <If condition="${/context_id} != ''">
       <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/L7_DDOS_ATTACK_REPORT"
                     method="POST" savePath="/get_web_ddos_events" retryCount="2">
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
@@ -90,8 +86,7 @@
                 "lower": ${time() - (1000 * 60 * (int(/fetch_minutes) + 60 * int(/fetch_hours) + 1440 * int(/fetch_days)))},
                 "upper": ${time()}
               }
-              <If>
-                <Condition>${/application_id} != ''</Condition>,
+              <If condition="${/application_id} != ''">,
                 {
                   "type": "stringFilter",
                   "field": "applicationId",
@@ -116,15 +111,13 @@
         </RawRequestBody>
       </CallEndpoint>
     </If>
-    <If>
-      <Condition>not(/get_web_ddos_events/response/data)</Condition>
+    <If condition="not(/get_web_ddos_events/response/data)">
       <Log level="ERROR">[ERROR] Web DDoS: No events returned or request failed.</Log>
     </If>
 
     <!-- === CDDos EVENTS (L4) === -->
     <!-- Calls the L4 DDoS report if the Infrastructure Context ID is provided -->
-    <If>
-      <Condition>${/infra_context_id} != ''</Condition>
+    <If condition="${/infra_context_id} != ''">
       <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/L4_DDOS_ATTACK_REPORT"
                     method="POST" savePath="/get_cddos_events" retryCount="2">
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
@@ -158,27 +151,22 @@
         </RawRequestBody>
       </CallEndpoint>
     </If>
-    <If>
-      <Condition>not(/get_cddos_events/response/data)</Condition>
+    <If condition="not(/get_cddos_events/response/data)">
       <Log level="ERROR">[ERROR] CDDos: No events returned or request failed.</Log>
     </If>
 
     <!-- === Logging Section === -->
     <Log level="INFO">[INFO] Time range: ${/fetch_days}d ${/fetch_hours}h ${/fetch_minutes}m</Log>
-    <If>
-      <Condition>${/application_id} != ''</Condition>
+    <If condition="${/application_id} != ''">
       <Log level="INFO">[INFO] Application ID filter: ${/application_id}</Log>
     </If>
-    <If>
-      <Condition>/get_waf_events/response/data</Condition>
+    <If condition="/get_waf_events/response/data">
       <Log level="INFO">[INFO] WAF events received: ${count(/get_waf_events/response/data)}</Log>
     </If>
-    <If>
-      <Condition>/get_web_ddos_events/response/data</Condition>
+    <If condition="/get_web_ddos_events/response/data">
       <Log level="INFO">[INFO] Web DDoS events received: ${count(/get_web_ddos_events/response/data)}</Log>
     </If>
-    <If>
-      <Condition>/get_cddos_events/response/data</Condition>
+    <If condition="/get_cddos_events/response/data">
       <Log level="INFO">[INFO] CDDos events received: ${count(/get_cddos_events/response/data)}</Log>
     </If>
     <!-- 
