@@ -27,7 +27,7 @@
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
         <RequestHeader name="Context" value="${/context_id}" />
         <RequestHeader name="Content-Type" value="application/json" />
-        <RawRequestBody>
+        <RequestBody>
           {
             "criteria": [
               {
@@ -61,7 +61,7 @@
               }
             ]
           }
-        </RawRequestBody>
+        </RequestBody>
       </CallEndpoint>
     </If>
     <If condition="not(/get_waf_events/response/data)">
@@ -75,7 +75,7 @@
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
         <RequestHeader name="Context" value="${/context_id}" />
         <RequestHeader name="Content-Type" value="application/json" />
-        <RawRequestBody>
+        <RequestBody>
           {
             "criteria": [
               {
@@ -108,7 +108,7 @@
               }
             ]
           }
-        </RawRequestBody>
+        </RequestBody>
       </CallEndpoint>
     </If>
     <If condition="not(/get_web_ddos_events/response/data)">
@@ -123,7 +123,7 @@
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
         <RequestHeader name="Context" value="${/infra_context_id}" />
         <RequestHeader name="Content-Type" value="application/json" />
-        <RawRequestBody>
+        <RequestBody>
           {
             "criteria": [
               {
@@ -148,7 +148,7 @@
               }
             ]
           }
-        </RawRequestBody>
+        </RequestBody>
       </CallEndpoint>
     </If>
     <If condition="not(/get_cddos_events/response/data)">
