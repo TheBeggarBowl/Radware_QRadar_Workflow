@@ -23,7 +23,7 @@
     <!-- Calls the AppWall report if the App Protection Context ID is provided -->
     <If condition="${/context_id} != ''">
       <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/APPWALL_REPORTS"
-                    method="POST" savePath="/get_waf_events" retryCount="2">
+                    method="POST" savePath="/get_waf_events">
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
         <RequestHeader name="Context" value="${/context_id}" />
         <RequestHeader name="Content-Type" value="application/json" />
@@ -71,7 +71,7 @@
     <!-- Calls the L7 DDoS report if the App Protection Context ID is provided -->
     <If condition="${/context_id} != ''">
       <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/L7_DDOS_ATTACK_REPORT"
-                    method="POST" savePath="/get_web_ddos_events" retryCount="2">
+                    method="POST" savePath="/get_web_ddos_events">
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
         <RequestHeader name="Context" value="${/context_id}" />
         <RequestHeader name="Content-Type" value="application/json" />
@@ -119,7 +119,7 @@
     <!-- Calls the L4 DDoS report if the Infrastructure Context ID is provided -->
     <If condition="${/infra_context_id} != ''">
       <CallEndpoint url="https://api.radwarecloud.app/mgmt/monitor/reporter/reports-ext/L4_DDOS_ATTACK_REPORT"
-                    method="POST" savePath="/get_cddos_events" retryCount="2">
+                    method="POST" savePath="/get_cddos_events">
         <RequestHeader name="X-API-KEY" value="${/api_key}" />
         <RequestHeader name="Context" value="${/infra_context_id}" />
         <RequestHeader name="Content-Type" value="application/json" />
