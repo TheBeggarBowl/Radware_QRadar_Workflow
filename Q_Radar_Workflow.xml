@@ -2,6 +2,7 @@
 <Workflow name="Fetch Radware CWAF, Web DDoS, CDDos Events (API Key)">
 
   <!-- ==== Parameters for Dynamic Control ==== -->
+  <!-- These must match the names in the Workflow Parameter Values XML -->
   <Parameter name="api_key" label="API Key" required="true" />
   <Parameter name="context_id" label="Context ID (App Protection)" required="false" />
   <Parameter name="infra_context_id" label="Infrastructure Context ID (CDDos)" required="false" />
@@ -27,6 +28,7 @@
               "field": "receivedTimeStamp",
               "includeLower": true,
               "includeUpper": true,
+              <!-- Time calculation: current time (ms) minus the lookback window (converted to ms) -->
               "lower": ${time() - (1000 * 60 * (int(/fetch_minutes) + 60 * int(/fetch_hours) + 1440 * int(/fetch_days)))},
               "upper": ${time()}
             }
